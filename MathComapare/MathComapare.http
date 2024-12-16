@@ -1,0 +1,6 @@
+@MathComapare_HostAddress = http://localhost:5238
+
+GET {{MathComapare_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
