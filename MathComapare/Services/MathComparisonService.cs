@@ -24,15 +24,15 @@ namespace MathComapare.Models
             return res;
         }
 
-        public async Task<GenerateExpressionResponse>  GenerateExpressions(string difficulty)
+        public async Task<GenerateExpressionResponse>  GenerateExpressions(int difficulty)
         {
             var response = new GenerateExpressionResponse();
             (response.Expression1, response.Expression2 ) = 
              difficulty switch
             {
-                "ez" => (await GenerateSimpleNumber(), await GenerateSimpleNumber()),
-                "normal" => (await GenerateSimpleExpression(), await GenerateSimpleExpression()),
-                "hard" => (await GenerateComplexExpression(), await GenerateComplexExpression()),
+                1 => (await GenerateSimpleNumber(), await GenerateSimpleNumber()),
+                2 => (await GenerateSimpleExpression(), await GenerateSimpleExpression()),
+                3 => (await GenerateComplexExpression(), await GenerateComplexExpression()),
                 _ => throw new ArgumentException("invalid difficulty")
             };
             return response;
