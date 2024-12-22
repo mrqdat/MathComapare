@@ -2,8 +2,6 @@ using AspNetCoreRateLimit;
 using MathComapare.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MathComapare.Controllers
 {
@@ -13,11 +11,15 @@ namespace MathComapare.Controllers
     {
         private readonly IMathExpressionService _service;
         private readonly ILogger<MathcomparisionController> _logger;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public MathcomparisionController(IMathExpressionService service, ILogger<MathcomparisionController> logger)
+        public MathcomparisionController(IMathExpressionService service
+            , ILogger<MathcomparisionController> logger
+            , IHttpContextAccessor contextAccessor)
         {
             _service = service;
             _logger = logger;
+            _contextAccessor = contextAccessor;
         }
 
         [HttpGet("generate")]
@@ -26,13 +28,15 @@ namespace MathComapare.Controllers
         {
             try
             {
+                var context = _contextAccessor.HttpContext;
                 var data = await _service.GenerateExpressions(difficulty);
-                _logger.LogInformation("{ data }", data);
+                string message = $"Request: {context?.Request.Method} {context?.Request.Path} {context?.Request.Body}";
+                _logger.LogInformation(message);
                 return Ok(data);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex.Message);
+                _logger.LogError(ex, nameof(Generate));
                 return BadRequest(ex.Message);
             }
         }
@@ -43,13 +47,15 @@ namespace MathComapare.Controllers
         {
             try
             {
+                var context = _contextAccessor.HttpContext;
                 var valid = await _service.EvaluateComparison(request);
-                _logger.LogInformation("{ data }", valid);
+                string message = $"Request: {context?.Request.Method} {context?.Request.Path} {context?.Request.Body}";
+                _logger.LogInformation(message);
                 return Ok(valid);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex.Message);
+                _logger.LogError(ex, nameof(Compare));
                 return BadRequest(ex.Message);
             }
         }

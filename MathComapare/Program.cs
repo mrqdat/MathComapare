@@ -13,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IMathExpressionService, MathComparisonService>();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddLogging(option =>
 {
     option.AddConsole();
@@ -20,19 +21,6 @@ builder.Services.AddLogging(option =>
 });
 
 builder.Services.AddLogging();
-//builder.WebHost.ConfigureKestrel(option =>
-//{
-//    option.ListenAnyIP(5000, listenOption =>
-//    {
-//        listenOption.Protocols = HttpProtocols.Http1AndHttp2;
-//    });
-
-//    option.ListenAnyIP(5001, listenoption =>
-//    {
-//        listenoption.UseHttps();
-//        listenoption.Protocols = HttpProtocols.Http2;
-//    });
-//}); 
 builder.Services.AddMemoryCache();
 builder.Services.Configure<IpRateLimitOptions>(options =>
 {
