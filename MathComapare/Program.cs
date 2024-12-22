@@ -27,7 +27,7 @@ builder.Services.Configure<IpRateLimitOptions>(options =>
     options.EnableEndpointRateLimiting = true;
     options.StackBlockedRequests = false;
     options.RealIpHeader = "X-Real-IP"; 
-    options.GeneralRules = new List<RateLimitRule>
+    options.GeneralRules = new List<RateLimitRule> 
     {
         new()
         {
@@ -50,8 +50,7 @@ builder.Services.AddCors( option =>
 {
     option.AddPolicy("AllowSpecificOrigins", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://checkmath.io.vn/")
-        .AllowCredentials()
+        policy.WithOrigins("https://checkmath.io.vn/ ", "http://localhost:3000")
         .AllowAnyHeader()
         .AllowAnyMethod();
     });
