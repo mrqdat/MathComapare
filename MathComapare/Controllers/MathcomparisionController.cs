@@ -1,5 +1,6 @@
 using AspNetCoreRateLimit;
 using MathComapare.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -20,7 +21,7 @@ namespace MathComapare.Controllers
         }
 
         [HttpGet("generate")]
-        //[ServiceFilter(ralimitfiler)]
+        [EnableCors("AllowSpecificOrigins")]
         public async Task<IActionResult> Generate([FromQuery] int difficulty)
         {
             try
@@ -37,6 +38,7 @@ namespace MathComapare.Controllers
         }
 
         [HttpPost("compare")]
+        [EnableCors("AllowSpecificOrigins")]
         public async Task<IActionResult> Compare(ComparisionRequest request)
         {
             try
