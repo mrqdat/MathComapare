@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MathComapare.Controllers
 {
+    [EnableCors("AllowSpecificOrigins")]
     [ApiController]
     [Route("api/math")]
     public class MathcomparisionController : ControllerBase
@@ -22,8 +23,7 @@ namespace MathComapare.Controllers
             _contextAccessor = contextAccessor;
         }
 
-        [HttpGet("generate")]
-        [EnableCors("AllowSpecificOrigins")]
+        [HttpGet("generate")]       
         public async Task<IActionResult> Generate([FromQuery] int difficulty)
         {
             try
@@ -42,7 +42,6 @@ namespace MathComapare.Controllers
         }
 
         [HttpPost("compare")]
-        [EnableCors("AllowSpecificOrigins")]
         public async Task<IActionResult> Compare(ComparisionRequest request)
         {
             try
