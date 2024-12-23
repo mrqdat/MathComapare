@@ -46,7 +46,7 @@ builder.Services.Configure<IpRateLimitOptions>(options =>
 });
 
 builder.Services.AddInMemoryRateLimiting();
-builder.Services.AddCors( option =>
+builder.Services.AddCors(option =>
 {
     option.AddPolicy("AllowSpecificOrigins", policy =>
     {
