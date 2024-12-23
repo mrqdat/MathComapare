@@ -12,7 +12,9 @@ builder.Services.AddCors(option =>
 {
     option.AddPolicy("AllowSpecificOrigins", policy =>
     {
-        policy.WithOrigins("https://checkmath.io.vn", "http://localhost:3000");
+        policy.WithOrigins("https://checkmath.io.vn", "http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
