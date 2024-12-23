@@ -29,28 +29,27 @@ builder.Services.AddLogging(option =>
 
 builder.Services.AddLogging();
 builder.Services.AddMemoryCache();
-builder.Services.Configure<IpRateLimitOptions>(options =>
-{
-    options.EnableEndpointRateLimiting = true;
-    options.StackBlockedRequests = false;
-    options.RealIpHeader = "X-Real-IP"; 
-    options.GeneralRules = new List<RateLimitRule> 
-    {
-        new()
-        {
-            Period = "1s",
-            Limit = 10,
-            Endpoint = "*"
-        }
-    };
-    options.HttpStatusCode = 429;
-    options.QuotaExceededResponse = new QuotaExceededResponse
-    {
-        Content = "{\"message\": \"Too many requests. Please try again later.\"}",
-        ContentType = "application/json",
-        StatusCode = 429
-    };
-});
+//builder.Services.Configure<IpRateLimitOptions>(options =>
+//{
+//    options.EnableEndpointRateLimiting = true;
+//    options.StackBlockedRequests = false;
+//    options.GeneralRules = new List<RateLimitRule> 
+//    {
+//        new()
+//        {
+//            Period = "1s",
+//            Limit = 10,
+//            Endpoint = "*"
+//        }
+//    };
+//    options.HttpStatusCode = 429;
+//    options.QuotaExceededResponse = new QuotaExceededResponse
+//    {
+//        Content = "{\"message\": \"Too many requests. Please try again later.\"}",
+//        ContentType = "application/json",
+//        StatusCode = 429
+//    };
+//});
 
 builder.Services.AddInMemoryRateLimiting();
 
