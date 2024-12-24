@@ -1,5 +1,7 @@
 using MathComapare.Models;
 using AspNetCoreRateLimit;
+using MathComapare.Context;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,7 +54,14 @@ builder.Services.AddMemoryCache();
 //});
 
 builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddDbContext<CheckmathDBContext>(option =>
+    option.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+//{
+//    googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
+//    googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+//});
 
 var app = builder.Build();
  if (app.Environment.IsDevelopment())
