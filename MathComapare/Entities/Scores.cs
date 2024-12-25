@@ -7,5 +7,8 @@
         public int GameId { get; set; }
         public int Score { get; set; }
         public DateTime AchievedAt { get; set; }
+
+        public Users? user { get; set; }
+        public Games? game { get; set; }
     }
 }

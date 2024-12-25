@@ -9,5 +9,8 @@
         public string? Password { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastLogin { get; set; }
+
+        public List<Games> Games { get; } = [];
+        public List<Scores> Scores { get; } = [];
     }
 }
