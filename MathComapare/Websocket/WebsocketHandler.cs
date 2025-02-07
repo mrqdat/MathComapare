@@ -1,44 +1,68 @@
-﻿using MathComapare.Models;
+﻿using MathComapare.Entities;
+using MathComapare.Interfaces;
+using MathComapare.Models;
+using MathComapare.Repositories.Interfaces;
 using Newtonsoft.Json;
 using System.Net.WebSockets;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace MathComapare.Websocket
 {
-    public static class WebsocketHandler
-    {
-        public static async Task HandlerWebsocket( WebSocket  websocket )
+    public class WebsocketHandler 
+    { 
+        private readonly WebSocketConnectionManager _connectionManager;
+        public WebsocketHandler (WebSocketConnectionManager webSocketConnection)
         {
-            var buffer = new byte[1024*4];
-            WebSocketReceiveResult result;
-
-            do
-            {
-                result = await websocket.ReceiveAsync( new ArraySegment<byte>(buffer), CancellationToken.None );
-                var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-
-                Console.WriteLine($" Recieved: {message}");
-
-                var response = Encoding.UTF8.GetBytes("message recieved");
-                await websocket.SendAsync(new ArraySegment<byte>(response),result.MessageType, result.EndOfMessage, CancellationToken.None);
-            }
-            while (!result.CloseStatus.HasValue);
-
-            await websocket.CloseAsync(result.CloseStatus.Value, websocket.CloseStatusDescription, CancellationToken.None);
+            _connectionManager = webSocketConnection;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="httpContext"></param>
+        /// <returns></returns>
+        public async Task HandlerWebsocket(HttpContext httpContext)
+        {
+            if (httpContext.WebSockets.IsWebSocketRequest)
+            {
+                using WebSocket socket = await httpContext.WebSockets.AcceptWebSocketAsync();
+                string clientid = Guid.NewGuid().ToString();
+                _connectionManager.Addsocket(clientid, socket);
 
-        //public async Task HandlerMessageAsync(WebSocket webSocket, string message)
-        //{
-        //    var wsMessage = JsonSerializer.Deserialize<WebSocketMessage>(message);
+                await ProcessMessage(clientid, socket);
 
-        //    switch (wsMessage.Type)
-        //    {
-        //        case "register_user":
-        //            {
+                _connectionManager.RemoveSocket(clientid);
+            }
+            else
+            {
+                httpContext.Response.StatusCode = 400;
+            }
+        }
 
-        //            }
-        //    }
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clientid"></param>
+        /// <param name="webSocket"></param>
+        /// <returns></returns>
+        public async Task ProcessMessage(string clientid, WebSocket webSocket)
+        {
+            var buffer = new byte[1024 * 4];
+
+            while(webSocket.State == WebSocketState.Open)
+            {
+                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                if (result.MessageType == WebSocketMessageType.Close) {
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,"Closed by client", CancellationToken.None);
+                    break;
+                }
+                else
+                {
+                    var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    await _connectionManager.BroadCastMessage($"ClientId: {clientid}: {message} ");
+                }
+            }
+        }
     }
 }

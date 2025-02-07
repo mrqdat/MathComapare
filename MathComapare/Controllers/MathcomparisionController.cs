@@ -1,5 +1,8 @@
 using AspNetCoreRateLimit;
+using MathComapare.Entities;
+using MathComapare.Interfaces;
 using MathComapare.Models;
+using MathComapare.Repositories.Interfaces;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,15 +15,19 @@ namespace MathComapare.Controllers
     {
         private readonly IMathExpressionService _service;
         private readonly ILogger<MathcomparisionController> _logger;
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IHttpContextAccessor _contextAccessor;       
+        private readonly IMathCompareRepositories _repositories;
 
         public MathcomparisionController(IMathExpressionService service
             , ILogger<MathcomparisionController> logger
-            , IHttpContextAccessor contextAccessor)
+            , IHttpContextAccessor contextAccessor
+            
+            ,IMathCompareRepositories repositories)
         {
             _service = service;
             _logger = logger;
-            _contextAccessor = contextAccessor;
+            _contextAccessor = contextAccessor; 
+            _repositories = repositories;
         }
 
         [HttpGet("generate")]       
@@ -49,13 +56,34 @@ namespace MathComapare.Controllers
                 var context = _contextAccessor.HttpContext;
                 var valid = await _service.EvaluateComparison(request);
                 string message = $"Request: {context?.Request.Method} {context?.Request.Path} {context?.Request.Body}";
-                _logger.LogInformation(message);
+                _logger.LogInformation($"{valid.ToString()} {message}");
                 return Ok(valid);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, nameof(Compare));
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser( Guid user_id)
+        {
+            var user = await _repositories.GetUserInfoAsync(user_id);
+            return user == null ? NotFound() : Ok(user);
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> CreateUser([FromBody] Users request)
+        {
+            try
+            {
+                await _repositories.RegisterUserAsync(request);
+                return CreatedAtAction(nameof(GetUser), new { id = request.UserId }, request);
+            }
+            catch(Exception ex) {
+                Console.Write(ex.InnerException?.Message ?? ex.Message);
+                throw; 
             }
         }
     }

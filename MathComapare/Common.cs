@@ -1,6 +1,6 @@
 ﻿namespace MathComapare
 {
-    enum messageType
+    enum MessageType
     {
         register_user = 0,          //Client -> Server    Gửi thông tin đăng ký người dùng
         register_user_ack = 1,      //Server -> Client    Xác nhận đăng ký thành công

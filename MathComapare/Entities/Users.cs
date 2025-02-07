@@ -1,7 +1,10 @@
-﻿namespace MathComapare.Entities
+﻿using Swashbuckle.AspNetCore.Annotations;
+
+namespace MathComapare.Entities
 {
     public class Users
     {
+        [SwaggerIgnore]
         public Guid UserId { get; set; }
         public string? Name { get; set; }
         public string? Email { get; set; }

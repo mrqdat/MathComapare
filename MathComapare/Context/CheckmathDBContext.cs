@@ -46,7 +46,14 @@ namespace MathComapare.Context
                 .WithMany()
                 .HasForeignKey(g => g.GameId);   
 
-            //optionsBuilder.UseSqlite("Data Source = checkmath.db");
+            
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlite("Data Source = checkmath.db")
+                .EnableSensitiveDataLogging()
+                .LogTo(Console.WriteLine);
         }
     }
 }

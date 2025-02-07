@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Net.WebSockets;
 using MathComapare.Websocket;
 using StackExchange.Redis;
+using MathComapare.Repositories.Interfaces;
+using MathComapare.Repositories;
+using MathComapare.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +28,10 @@ builder.Services.AddCors(option =>
 builder.Services.AddScoped<IMathExpressionService, MathComparisonService>();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379"));
+builder.Services.AddScoped<IMathCompareRepositories, MathCompareRepositories>();
+builder.Services.AddSingleton<WebSocketConnectionManager>();
+builder.Services.AddSingleton<WebsocketHandler>();
+//builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379"));
 
 builder.Services.AddLogging(option =>
 {
@@ -61,40 +67,29 @@ builder.Services.AddInMemoryRateLimiting();
 builder.Services.AddDbContext<CheckmathDBContext>(option =>
     option.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//builder.Services.AddAuthentication().AddGoogle(googleOptions =>
-//{
-//    googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
-//    googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-//});
+builder.Services.AddAuthentication()
+    .AddGoogle(googleOptions =>
+    {
+        IConfiguration config = builder.Configuration.GetSection("Authentication:Google");
+        googleOptions.ClientId = config["ClientId"];
+        googleOptions.ClientSecret = config["ClientSecret"];
+    });
 
 var app = builder.Build();
 
- if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.Use(async (context, next) =>
+
+app.Map("/ws", async (HttpContext context, WebsocketHandler handler) =>
 {
-    if (context.Request.Path == "/ws")
-    {
-        if (context.WebSockets.IsWebSocketRequest)
-        {
-            var websocket = await context.WebSockets.AcceptWebSocketAsync();
-            await WebsocketHandler.HandlerWebsocket(websocket);
-        }
-        else
-        {
-            context.Response.StatusCode = 400;
-        }
-    }
-    else
-    {
-        await next();
-    }
+    await handler.HandlerWebsocket(context);
 });
 
- 
+
+
 
 app.UseHttpsRedirection();
 app.UseRouting();
