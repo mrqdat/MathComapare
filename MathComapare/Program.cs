@@ -1,12 +1,8 @@
 using MathComapare.Models;
 using AspNetCoreRateLimit;
-using MathComapare.Context;
-using Microsoft.EntityFrameworkCore;
-using System.Net.WebSockets;
-using MathComapare.Websocket;
-using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -25,8 +21,6 @@ builder.Services.AddCors(option =>
 builder.Services.AddScoped<IMathExpressionService, MathComparisonService>();
 builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379"));
-
 builder.Services.AddLogging(option =>
 {
     option.AddConsole();
@@ -58,44 +52,14 @@ builder.Services.AddMemoryCache();
 //});
 
 builder.Services.AddInMemoryRateLimiting();
-builder.Services.AddDbContext<CheckmathDBContext>(option =>
-    option.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//builder.Services.AddAuthentication().AddGoogle(googleOptions =>
-//{
-//    googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
-//    googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-//});
 
 var app = builder.Build();
-
  if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path == "/ws")
-    {
-        if (context.WebSockets.IsWebSocketRequest)
-        {
-            var websocket = await context.WebSockets.AcceptWebSocketAsync();
-            await WebsocketHandler.HandlerWebsocket(websocket);
-        }
-        else
-        {
-            context.Response.StatusCode = 400;
-        }
-    }
-    else
-    {
-        await next();
-    }
-});
-
- 
-
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("AllowSpecificOrigins");
