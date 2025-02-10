@@ -29,3 +29,9 @@ jobs:
 
       - name: Deploy application
         run: echo "Deploying application..."
+        
+      - name: GOOGLE_CLIENT_ID
+        run: echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+        
+      - name: GOOGLE_CLIENT_SECRET
+        run: echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env  
