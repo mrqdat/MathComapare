@@ -67,14 +67,6 @@ builder.Services.AddInMemoryRateLimiting();
 builder.Services.AddDbContext<CheckmathDBContext>(option =>
     option.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddAuthentication()
-    .AddGoogle(googleOptions =>
-    {
-        IConfiguration config = builder.Configuration.GetSection("Authentication:Google");
-        googleOptions.ClientId = config["ClientId"];
-        googleOptions.ClientSecret = config["ClientSecret"];
-    });
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
